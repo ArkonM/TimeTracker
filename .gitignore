@@ -1,0 +1,26 @@
+## Build outputs
+bin/
+obj/
+
+## Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userprefs
+*.userosscache
+
+## NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+## OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Claude Code local settings
+.claude/settings.local.json

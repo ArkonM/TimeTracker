@@ -1,0 +1,87 @@
+<Window x:Class="TimeTracker.Views.EntryDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:TimeTracker.Helpers"
+        Title="Time Entry" Width="360" Height="310"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Window.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="12"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="8"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
+                   Text="{Binding DateDisplay}" FontSize="14" FontWeight="SemiBold"/>
+
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
+            <CheckBox Content="Vacation Day" IsChecked="{Binding IsVacation}"
+                      VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <TextBlock Text="{Binding VacationBalanceDisplay}"
+                       Foreground="#666" FontSize="11" VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <CheckBox Content="Sick Day" IsChecked="{Binding IsSick}" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Grid Grid.Row="4" Grid.ColumnSpan="2"
+              Visibility="{Binding IsWorkEntry, Converter={StaticResource BoolToVis}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="130"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Start time (HH:mm):" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="StartBox"
+                     Text="{Binding StartText, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="4,3"/>
+
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="End time (HH:mm):" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="2" Grid.Column="1" x:Name="EndBox"
+                     Text="{Binding EndText, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="4,3"/>
+
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Break (minutes):" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="4" Grid.Column="1"
+                     Text="{Binding BreakMinutes, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="4,3"/>
+
+            <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <TextBlock Text="Work duration: " Foreground="#666"/>
+                <TextBlock Text="{Binding WorkDisplay}" FontWeight="SemiBold"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="6" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Save" Click="Save_Click"
+                    IsDefault="True" Padding="8,6"
+                    Background="#4CAF50" Foreground="White" FontWeight="SemiBold" BorderThickness="0"/>
+            <Button Grid.Column="2" Content="Cancel" Click="Cancel_Click"
+                    IsCancel="True" Padding="8,6"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,39 @@
+<Window x:Class="TimeTracker.Views.BreakDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Break" Width="360" Height="200"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="16"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="Did you already take your break?"
+                   FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center">
+            <TextBlock Text="Break duration (minutes):" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox x:Name="BreakMinutesBox" Width="60" TextAlignment="Center"
+                     VerticalContentAlignment="Center" Padding="4,3"/>
+        </StackPanel>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Yes, already done" Click="AlreadyDone_Click"
+                    Padding="8,6" Background="#4CAF50" Foreground="White" FontWeight="SemiBold"
+                    BorderThickness="0"/>
+            <Button Grid.Column="2" Content="No, add to end time" Click="AddToEnd_Click"
+                    Padding="8,6" Background="#2196F3" Foreground="White" FontWeight="SemiBold"
+                    BorderThickness="0"/>
+        </Grid>
+    </Grid>
+</Window>
