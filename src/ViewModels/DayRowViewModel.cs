@@ -31,6 +31,7 @@ public partial class DayRowViewModel : ObservableObject
     [ObservableProperty] private bool _isActualOvertime;       // worked >= OvertimeThreshold (8h)
     [ObservableProperty] private bool _hasEntry;
     [ObservableProperty] private bool _isActiveDay;
+    [ObservableProperty] private string? _sessionsTooltip;
 
     public TimeEntry? Entry { get; private set; }
 
@@ -67,12 +68,14 @@ public partial class DayRowViewModel : ObservableObject
                 StartDisplay = "Vacation";
                 EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
                 IsDeficit = IsActualOvertime = false;
+                SessionsTooltip = null;
             }
             else if (entry.EntryType == EntryType.Sick)
             {
                 StartDisplay = "Sick Day";
                 EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
                 IsDeficit = IsActualOvertime = false;
+                SessionsTooltip = null;
             }
             else
             {
@@ -81,23 +84,28 @@ public partial class DayRowViewModel : ObservableObject
                 BreakDisplay = DurationFormatter.Format(entry.BreakDuration);
                 WorkDisplay = DurationFormatter.Format(entry.WorkDuration);
                 ApplyBalance(entry.WorkDuration);
+                SessionsTooltip = entry.Sessions.Count > 1
+                    ? string.Join("\n", entry.Sessions.Select(s =>
+                        $"  {DurationFormatter.FormatTime(s.Start)} – {DurationFormatter.FormatTime(s.End)}"))
+                    : null;
             }
         }
         else
         {
             StartDisplay = EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
             IsDeficit = IsActualOvertime = false;
+            SessionsTooltip = null;
         }
     }
 
-    public void SetLiveTracking(TimeSpan startTime, TimeSpan elapsed)
+    public void SetLiveTracking(TimeSpan effectiveStart, TimeSpan totalWork, TimeSpan breakSoFar)
     {
         IsActiveDay = true;
-        StartDisplay = DurationFormatter.FormatTime(startTime);
+        StartDisplay = DurationFormatter.FormatTime(effectiveStart);
         EndDisplay = "";
-        BreakDisplay = "";
-        WorkDisplay = DurationFormatter.FormatElapsed(elapsed);
-        ApplyBalance(elapsed);
+        BreakDisplay = breakSoFar > TimeSpan.Zero ? DurationFormatter.Format(breakSoFar) : "";
+        WorkDisplay = DurationFormatter.FormatElapsed(totalWork);
+        ApplyBalance(totalWork);
     }
 
     private void ApplyBalance(TimeSpan worked)

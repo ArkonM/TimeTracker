@@ -6,6 +6,7 @@
         Title="TimeTracker" Width="760" Height="608"
         MinWidth="620" MinHeight="400"
         ShowInTaskbar="False"
+        Icon="Assets/app.ico"
         Closing="Window_Closing">
 
     <Window.Resources>
@@ -124,7 +125,8 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Grid.Column="0" Text="{Binding DateLabel}"
-                                               FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                               FontWeight="SemiBold" VerticalAlignment="Center"
+                                               ToolTip="{Binding SessionsTooltip}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding WeekdayLabel}"
                                                Foreground="#888" FontSize="11" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="2" Text="{Binding StartDisplay}" VerticalAlignment="Center"/>

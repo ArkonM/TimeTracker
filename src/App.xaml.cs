@@ -16,9 +16,10 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        var iconStream = GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico"))?.Stream;
         _trayIcon = new System.Windows.Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = iconStream != null ? new System.Drawing.Icon(iconStream, 16, 16) : System.Drawing.SystemIcons.Application,
             Visible = true,
             Text = "TimeTracker"
         };

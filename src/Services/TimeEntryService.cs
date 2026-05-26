@@ -58,6 +58,10 @@ public class TimeEntryService
             .OrderBy(e => e.Date).ThenBy(e => e.StartTime)
             .ToList();
 
+    public TimeEntry? GetEntryForDate(DateOnly date)
+        => GetOrLoadMonth(date.Month)
+            .FirstOrDefault(e => e.Date == date && e.EntryType == EntryType.Work);
+
     public void StartSession() { _meta.ActiveSession = new ActiveSession { StartedAt = DateTime.Now }; SaveMeta(); }
     public void ClearSession() { _meta.ActiveSession = null; SaveMeta(); }
     public void SaveSettings() => SaveMeta();

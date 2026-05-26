@@ -19,6 +19,8 @@ public partial class MainViewModel : ObservableObject
     private int _year;
     private int _month;
     private DateTime? _sessionStart;
+    private TimeSpan _completedWorkToday;
+    private TimeSpan _todayEffectiveStart;
 
     [ObservableProperty] private string _monthTitle = "";
     [ObservableProperty] private string _monthlySummary = "";
@@ -104,6 +106,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         _sessionStart = session.StartedAt;
+        InitTodaySessionState();
         IsTracking = true;
         _timer.Start();
         UpdateTodayLive();
@@ -111,16 +114,51 @@ public partial class MainViewModel : ObservableObject
 
     private void AutoStop(ActiveSession session)
     {
-        var breakDuration = TimeSpan.FromMinutes(Settings.DefaultBreakMinutes);
-        _service.AddEntry(new TimeEntry
+        var ws = new WorkSession { Start = session.StartedAt.TimeOfDay, End = new TimeSpan(23, 59, 0) };
+        var existing = _service.GetEntryForDate(DateOnly.FromDateTime(session.StartedAt.Date));
+        if (existing != null)
         {
-            Date = DateOnly.FromDateTime(session.StartedAt),
-            StartTime = session.StartedAt.TimeOfDay,
-            EndTime = new TimeSpan(23, 59, 0) + breakDuration,
-            BreakDuration = breakDuration,
-            AutoStopped = true
-        });
+            existing.Sessions.Add(ws);
+            existing.EndTime = ws.End;
+            existing.BreakDuration = ComputeBreak(existing);
+            existing.AutoStopped = true;
+            _service.UpdateEntry(existing);
+        }
+        else
+        {
+            _service.AddEntry(new TimeEntry
+            {
+                Date = DateOnly.FromDateTime(session.StartedAt.Date),
+                StartTime = ws.Start,
+                EndTime = ws.End,
+                BreakDuration = TimeSpan.Zero,
+                AutoStopped = true,
+                Sessions = [ws]
+            });
+        }
         _service.ClearSession();
+    }
+
+    private void InitTodaySessionState()
+    {
+        var todayEntry = _service.GetEntryForDate(DateOnly.FromDateTime(DateTime.Today));
+        if (todayEntry?.Sessions.Count > 0)
+        {
+            _completedWorkToday = todayEntry.Sessions.Aggregate(TimeSpan.Zero, (s, ws) => s + (ws.End - ws.Start));
+            _todayEffectiveStart = todayEntry.StartTime;
+        }
+        else
+        {
+            _completedWorkToday = TimeSpan.Zero;
+            _todayEffectiveStart = _sessionStart!.Value.TimeOfDay;
+        }
+    }
+
+    private static TimeSpan ComputeBreak(TimeEntry entry)
+    {
+        var totalWork = entry.Sessions.Aggregate(TimeSpan.Zero, (s, ws) => s + (ws.End - ws.Start));
+        var span = entry.EndTime - entry.StartTime;
+        return span > totalWork ? span - totalWork : TimeSpan.Zero;
     }
 
     [RelayCommand]
@@ -128,6 +166,7 @@ public partial class MainViewModel : ObservableObject
     {
         _service.StartSession();
         _sessionStart = _service.ActiveSession!.StartedAt;
+        InitTodaySessionState();
         IsTracking = true;
         _timer.Start();
 
@@ -140,24 +179,29 @@ public partial class MainViewModel : ObservableObject
     {
         _timer.Stop();
 
-        var dialog = new Views.BreakDialog(Settings.DefaultBreakMinutes);
-        if (dialog.ShowDialog() != true) { _timer.Start(); return; }
-
-        var vm = dialog.ViewModel;
-        var breakDuration = TimeSpan.FromMinutes(vm.BreakMinutes);
-        var endTime = vm.BreakAlreadyTaken
-            ? DateTime.Now.TimeOfDay
-            : DateTime.Now.TimeOfDay + breakDuration;
-
-        _service.AddEntry(new TimeEntry
+        var ws = new WorkSession { Start = _sessionStart!.Value.TimeOfDay, End = DateTime.Now.TimeOfDay };
+        var existing = _service.GetEntryForDate(DateOnly.FromDateTime(_sessionStart.Value.Date));
+        if (existing != null)
         {
-            Date = DateOnly.FromDateTime(_sessionStart!.Value),
-            StartTime = _sessionStart.Value.TimeOfDay,
-            EndTime = endTime,
-            BreakDuration = breakDuration
-        });
+            existing.Sessions.Add(ws);
+            existing.EndTime = ws.End;
+            existing.BreakDuration = ComputeBreak(existing);
+            _service.UpdateEntry(existing);
+        }
+        else
+        {
+            _service.AddEntry(new TimeEntry
+            {
+                Date = DateOnly.FromDateTime(_sessionStart.Value.Date),
+                StartTime = ws.Start,
+                EndTime = ws.End,
+                BreakDuration = TimeSpan.Zero,
+                Sessions = [ws]
+            });
+        }
         _service.ClearSession();
 
+        _completedWorkToday = TimeSpan.Zero;
         IsTracking = false;
         _sessionStart = null;
         ElapsedDisplay = "00:00:00";
@@ -224,6 +268,7 @@ public partial class MainViewModel : ObservableObject
             row.Entry.StartTime = vm.StartTime;
             row.Entry.EndTime = vm.EndTime;
             row.Entry.BreakDuration = vm.BreakDuration;
+            row.Entry.Sessions.Clear();
             _service.UpdateEntry(row.Entry);
         }
         else
@@ -268,9 +313,9 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        var elapsed = DateTime.Now - _sessionStart.Value;
-        ElapsedDisplay = DurationFormatter.FormatElapsed(elapsed);
-        UpdateTodayBalance(elapsed);
+        var totalWork = _completedWorkToday + (DateTime.Now - _sessionStart.Value);
+        ElapsedDisplay = DurationFormatter.FormatElapsed(totalWork);
+        UpdateTodayBalance(totalWork);
 
         if (_year == DateTime.Today.Year && _month == DateTime.Today.Month)
             UpdateTodayLive();
@@ -281,7 +326,12 @@ public partial class MainViewModel : ObservableObject
         if (_sessionStart == null) return;
         var today = DayRows.FirstOrDefault(r => r.IsToday);
         if (today == null) return;
-        today.SetLiveTracking(_sessionStart.Value.TimeOfDay, DateTime.Now - _sessionStart.Value);
+
+        var totalWork = _completedWorkToday + (DateTime.Now - _sessionStart.Value);
+        var totalSpan = DateTime.Now.TimeOfDay - _todayEffectiveStart;
+        var breakSoFar = totalSpan > totalWork ? totalSpan - totalWork : TimeSpan.Zero;
+
+        today.SetLiveTracking(_todayEffectiveStart, totalWork, breakSoFar);
     }
 
     private void UpdateTodayBalance(TimeSpan elapsed)

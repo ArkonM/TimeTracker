@@ -10,6 +10,7 @@ public class TimeEntry
     public TimeSpan StartTime { get; set; }
     public TimeSpan EndTime { get; set; }
     public TimeSpan BreakDuration { get; set; }
+    public List<WorkSession> Sessions { get; set; } = new();
     public TimeSpan WorkDuration => EntryType == EntryType.Work ? EndTime - StartTime - BreakDuration : TimeSpan.Zero;
     public bool AutoStopped { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
