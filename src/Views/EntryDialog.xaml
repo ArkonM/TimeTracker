@@ -31,7 +31,8 @@
                       VerticalAlignment="Center" Margin="0,0,4,0"/>
             <TextBlock Text="{Binding VacationBalanceDisplay}"
                        Foreground="#666" FontSize="11" VerticalAlignment="Center" Margin="0,0,14,0"/>
-            <CheckBox Content="Sick Day" IsChecked="{Binding IsSick}" VerticalAlignment="Center"/>
+            <CheckBox Content="Sick Day" IsChecked="{Binding IsSick}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+            <CheckBox Content="Home Office" IsChecked="{Binding IsHomeOffice}" VerticalAlignment="Center"/>
         </StackPanel>
 
         <Grid Grid.Row="4" Grid.ColumnSpan="2"

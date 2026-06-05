@@ -119,6 +119,7 @@ public partial class MainViewModel : ObservableObject
         if (existing != null)
         {
             existing.Sessions.Add(ws);
+            existing.StartTime = existing.Sessions.Min(s => s.Start);
             existing.EndTime = ws.End;
             existing.BreakDuration = ComputeBreak(existing);
             existing.AutoStopped = true;
@@ -184,7 +185,8 @@ public partial class MainViewModel : ObservableObject
         if (existing != null)
         {
             existing.Sessions.Add(ws);
-            existing.EndTime = ws.End;
+            existing.StartTime = existing.Sessions.Min(s => s.Start);
+            existing.EndTime = existing.Sessions.Max(s => s.End);
             existing.BreakDuration = ComputeBreak(existing);
             _service.UpdateEntry(existing);
         }
@@ -268,6 +270,7 @@ public partial class MainViewModel : ObservableObject
             row.Entry.StartTime = vm.StartTime;
             row.Entry.EndTime = vm.EndTime;
             row.Entry.BreakDuration = vm.BreakDuration;
+            row.Entry.IsHomeOffice = vm.IsHomeOffice;
             row.Entry.Sessions.Clear();
             _service.UpdateEntry(row.Entry);
         }
@@ -279,7 +282,8 @@ public partial class MainViewModel : ObservableObject
                 EntryType = vm.EntryType,
                 StartTime = vm.StartTime,
                 EndTime = vm.EndTime,
-                BreakDuration = vm.BreakDuration
+                BreakDuration = vm.BreakDuration,
+                IsHomeOffice = vm.IsHomeOffice
             });
         }
         LoadMonth();

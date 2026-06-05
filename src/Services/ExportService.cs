@@ -36,7 +36,7 @@ public class ExportService
         var ws = wb.Worksheets.Add(title);
         var settings = _entries.Settings;
 
-        string[] headers = { "Date", "Day", "Start", "End", "Break", "Work", "Overtime" };
+        string[] headers = { "Date", "Day", "Start", "End", "Break", "Work", "Overtime", "HO" };
         for (int i = 0; i < headers.Length; i++)
         {
             ws.Cell(1, i + 1).Value = headers[i];
@@ -83,12 +83,15 @@ public class ExportService
                     : XLColor.FromHtml("#E65100");
             }
 
+            if (entry is { IsHomeOffice: true })
+                ws.Cell(row, 8).Value = "HO";
+
             var bg = isHoliday ? XLColor.FromHtml("#FFF3CD")
                    : isWeekend ? XLColor.FromHtml("#F0F0F0")
                    : XLColor.NoColor;
 
             if (bg != XLColor.NoColor)
-                for (int c = 1; c <= 7; c++)
+                for (int c = 1; c <= 8; c++)
                     ws.Cell(row, c).Style.Fill.BackgroundColor = bg;
         }
 
@@ -127,7 +130,7 @@ public class ExportService
         var settings = _entries.Settings;
         var breakDuration = TimeSpan.FromMinutes(30);
 
-        string[] headers = { "Date", "Day", "Start", "End", "Break", "Work", "Overtime" };
+        string[] headers = { "Date", "Day", "Start", "End", "Break", "Work", "Overtime", "HO" };
         for (int i = 0; i < headers.Length; i++)
         {
             ws.Cell(1, i + 1).Value = headers[i];
@@ -178,11 +181,14 @@ public class ExportService
                 }
             }
 
+            if (entry is { IsHomeOffice: true })
+                ws.Cell(row, 8).Value = "HO";
+
             var bg = isHoliday ? XLColor.FromHtml("#FFF3CD")
                    : isWeekend ? XLColor.FromHtml("#F0F0F0")
                    : XLColor.NoColor;
             if (bg != XLColor.NoColor)
-                for (int c = 1; c <= 7; c++)
+                for (int c = 1; c <= 8; c++)
                     ws.Cell(row, c).Style.Fill.BackgroundColor = bg;
         }
 

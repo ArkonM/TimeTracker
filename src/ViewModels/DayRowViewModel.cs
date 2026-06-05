@@ -31,6 +31,7 @@ public partial class DayRowViewModel : ObservableObject
     [ObservableProperty] private bool _isActualOvertime;       // worked >= OvertimeThreshold (8h)
     [ObservableProperty] private bool _hasEntry;
     [ObservableProperty] private bool _isActiveDay;
+    [ObservableProperty] private bool _isHomeOffice;
     [ObservableProperty] private string? _sessionsTooltip;
 
     public TimeEntry? Entry { get; private set; }
@@ -60,6 +61,7 @@ public partial class DayRowViewModel : ObservableObject
         Entry = entry;
         HasEntry = entry != null;
         IsActiveDay = false;
+        IsHomeOffice = entry?.IsHomeOffice ?? false;
 
         if (entry != null)
         {

@@ -12,6 +12,7 @@ public class EntryDialogViewModel : INotifyPropertyChanged
     private int _breakMinutes;
     private bool _isVacation;
     private bool _isSick;
+    private bool _isHomeOffice;
 
     public DateOnly Date { get; set; }
     public string DateDisplay => Date.ToString("dddd, dd MMMM yyyy");
@@ -45,6 +46,12 @@ public class EntryDialogViewModel : INotifyPropertyChanged
     }
 
     public bool IsWorkEntry => !_isVacation && !_isSick;
+
+    public bool IsHomeOffice
+    {
+        get => _isHomeOffice;
+        set { _isHomeOffice = value; OnPropertyChanged(); }
+    }
 
     public double? VacationBalance { get; set; }
     public string VacationBalanceDisplay => VacationBalance.HasValue ? $"({VacationBalance.Value:F1} d remaining)" : "";
@@ -92,6 +99,7 @@ public class EntryDialogViewModel : INotifyPropertyChanged
     public void LoadFromEntry(TimeEntry entry)
     {
         Date = entry.Date;
+        IsHomeOffice = entry.IsHomeOffice;
         if (entry.EntryType == EntryType.Vacation)
             IsVacation = true;
         else if (entry.EntryType == EntryType.Sick)
