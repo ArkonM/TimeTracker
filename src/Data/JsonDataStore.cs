@@ -8,7 +8,7 @@ namespace TimeTracker.Data;
 public class JsonDataStore
 {
     private static readonly string Dir = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "TimeTracker");
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TimeTracker");
 
     private static readonly string MetaPath = Path.Combine(Dir, "data.json");
 
