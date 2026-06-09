@@ -239,7 +239,7 @@
                     <TextBlock Text="Elapsed: " Foreground="#888" FontSize="13" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding ElapsedDisplay}" FontSize="16" FontWeight="Bold"
                                Foreground="#333" Margin="0,0,24,0" VerticalAlignment="Center"/>
-                    <TextBlock Text="Overtime: " Foreground="#888" FontSize="13" VerticalAlignment="Center"/>
+                    <TextBlock Text="Remaining: " Foreground="#888" FontSize="13" VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding BalanceTodayDisplay}" FontSize="14" FontWeight="SemiBold"
                                VerticalAlignment="Center">
                         <TextBlock.Style>

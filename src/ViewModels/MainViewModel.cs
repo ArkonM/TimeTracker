@@ -320,6 +320,7 @@ public partial class MainViewModel : ObservableObject
         var totalWork = _completedWorkToday + (DateTime.Now - _sessionStart.Value);
         ElapsedDisplay = DurationFormatter.FormatElapsed(totalWork);
         UpdateTodayBalance(totalWork);
+        UpdateTotalOvertimeLive(totalWork);
 
         if (_year == DateTime.Today.Year && _month == DateTime.Today.Month)
             UpdateTodayLive();
@@ -347,6 +348,17 @@ public partial class MainViewModel : ObservableObject
 
         IsTodayDeficit = balance < TimeSpan.Zero;
         IsTodayActualOvertime = elapsed >= Settings.OvertimeThreshold;
+    }
+
+    private void UpdateTotalOvertimeLive(TimeSpan liveWorkToday)
+    {
+        var allWorkEntries = _service.GetAllEntries().Where(e => e.EntryType == EntryType.Work);
+        var totalOvertime = allWorkEntries.Aggregate(TimeSpan.Zero, (s, e) => s + (e.WorkDuration - Settings.DailyTarget));
+        totalOvertime += liveWorkToday - Settings.DailyTarget;
+        IsTotalOvertimeNegative = totalOvertime < TimeSpan.Zero;
+        TotalOvertimeDisplay = totalOvertime == TimeSpan.Zero ? "0:00"
+            : totalOvertime > TimeSpan.Zero ? $"+{DurationFormatter.Format(totalOvertime)}"
+            : $"-{DurationFormatter.Format(totalOvertime.Duration())}";
     }
 
     private void UpdateSummary()
