@@ -352,7 +352,8 @@ public partial class MainViewModel : ObservableObject
 
     private void UpdateTotalOvertimeLive(TimeSpan liveWorkToday)
     {
-        var allWorkEntries = _service.GetAllEntries().Where(e => e.EntryType == EntryType.Work);
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var allWorkEntries = _service.GetAllEntries().Where(e => e.EntryType == EntryType.Work && e.Date != today);
         var totalOvertime = allWorkEntries.Aggregate(TimeSpan.Zero, (s, e) => s + (e.WorkDuration - Settings.DailyTarget));
         totalOvertime += liveWorkToday - Settings.DailyTarget;
         IsTotalOvertimeNegative = totalOvertime < TimeSpan.Zero;
