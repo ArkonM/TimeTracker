@@ -118,10 +118,7 @@ public partial class MainViewModel : ObservableObject
         var existing = _service.GetEntryForDate(DateOnly.FromDateTime(session.StartedAt.Date));
         if (existing != null)
         {
-            existing.Sessions.Add(ws);
-            existing.StartTime = existing.Sessions.Min(s => s.Start);
-            existing.EndTime = ws.End;
-            existing.BreakDuration = ComputeBreak(existing);
+            MergeSession(existing, ws);
             existing.AutoStopped = true;
             _service.UpdateEntry(existing);
         }
@@ -143,10 +140,12 @@ public partial class MainViewModel : ObservableObject
     private void InitTodaySessionState()
     {
         var todayEntry = _service.GetEntryForDate(DateOnly.FromDateTime(DateTime.Today));
-        if (todayEntry?.Sessions.Count > 0)
+        if (todayEntry is { EntryType: EntryType.Work } && todayEntry.WorkDuration > TimeSpan.Zero)
         {
-            _completedWorkToday = todayEntry.Sessions.Aggregate(TimeSpan.Zero, (s, ws) => s + (ws.End - ws.Start));
-            _todayEffectiveStart = todayEntry.StartTime;
+            _completedWorkToday = todayEntry.WorkDuration;
+            _todayEffectiveStart = todayEntry.StartTime < _sessionStart!.Value.TimeOfDay
+                ? todayEntry.StartTime
+                : _sessionStart.Value.TimeOfDay;
         }
         else
         {
@@ -155,11 +154,22 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private static TimeSpan ComputeBreak(TimeEntry entry)
+    // Merges a finished timer session into an existing entry. Manual entries carry their
+    // times only in the flat fields (Sessions is empty), so that block is first converted
+    // into a session to keep it; the gap between blocks becomes break time.
+    private static void MergeSession(TimeEntry entry, WorkSession ws)
     {
-        var totalWork = entry.Sessions.Aggregate(TimeSpan.Zero, (s, ws) => s + (ws.End - ws.Start));
+        var previousWork = entry.WorkDuration;
+        if (entry.Sessions.Count == 0 && entry.EndTime > entry.StartTime)
+            entry.Sessions.Add(new WorkSession { Start = entry.StartTime, End = entry.EndTime });
+
+        entry.Sessions.Add(ws);
+        entry.StartTime = entry.Sessions.Min(s => s.Start);
+        entry.EndTime = entry.Sessions.Max(s => s.End);
+
+        var totalWork = previousWork + (ws.End - ws.Start);
         var span = entry.EndTime - entry.StartTime;
-        return span > totalWork ? span - totalWork : TimeSpan.Zero;
+        entry.BreakDuration = span > totalWork ? span - totalWork : TimeSpan.Zero;
     }
 
     [RelayCommand]
@@ -184,10 +194,7 @@ public partial class MainViewModel : ObservableObject
         var existing = _service.GetEntryForDate(DateOnly.FromDateTime(_sessionStart.Value.Date));
         if (existing != null)
         {
-            existing.Sessions.Add(ws);
-            existing.StartTime = existing.Sessions.Min(s => s.Start);
-            existing.EndTime = existing.Sessions.Max(s => s.End);
-            existing.BreakDuration = ComputeBreak(existing);
+            MergeSession(existing, ws);
             _service.UpdateEntry(existing);
         }
         else
