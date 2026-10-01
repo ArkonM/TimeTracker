@@ -20,7 +20,6 @@ public partial class DayRowViewModel : ObservableObject
     public string DateLabel { get; }
     public string WeekdayLabel { get; }
     public TimeSpan DailyTarget { get; }
-    public TimeSpan OvertimeThreshold { get; }
 
     [ObservableProperty] private string _startDisplay = "";
     [ObservableProperty] private string _endDisplay = "";
@@ -28,7 +27,7 @@ public partial class DayRowViewModel : ObservableObject
     [ObservableProperty] private string _workDisplay = "";
     [ObservableProperty] private string _balanceDisplay = "";  // -7:42 → 0:00 → +overtime
     [ObservableProperty] private bool _isDeficit;              // worked < DailyTarget
-    [ObservableProperty] private bool _isActualOvertime;       // worked >= OvertimeThreshold (8h)
+    [ObservableProperty] private bool _isOvertime;       // worked more than DailyTarget
     [ObservableProperty] private bool _hasEntry;
     [ObservableProperty] private bool _isActiveDay;
     [ObservableProperty] private bool _isHomeOffice;
@@ -41,7 +40,6 @@ public partial class DayRowViewModel : ObservableObject
     {
         Date = date;
         DailyTarget = settings.DailyTarget;
-        OvertimeThreshold = settings.OvertimeThreshold;
         IsHoliday = isHoliday;
         HolidayName = holidayName;
         IsOutOfMonth = isOutOfMonth;
@@ -69,14 +67,14 @@ public partial class DayRowViewModel : ObservableObject
             {
                 StartDisplay = "Vacation";
                 EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
-                IsDeficit = IsActualOvertime = false;
+                IsDeficit = IsOvertime = false;
                 SessionsTooltip = null;
             }
             else if (entry.EntryType == EntryType.Sick)
             {
                 StartDisplay = "Sick Day";
                 EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
-                IsDeficit = IsActualOvertime = false;
+                IsDeficit = IsOvertime = false;
                 SessionsTooltip = null;
             }
             else
@@ -95,7 +93,7 @@ public partial class DayRowViewModel : ObservableObject
         else
         {
             StartDisplay = EndDisplay = BreakDisplay = WorkDisplay = BalanceDisplay = "";
-            IsDeficit = IsActualOvertime = false;
+            IsDeficit = IsOvertime = false;
             SessionsTooltip = null;
         }
     }
@@ -118,7 +116,7 @@ public partial class DayRowViewModel : ObservableObject
             : "-" + DurationFormatter.Format(balance.Duration());
 
         IsDeficit = balance < TimeSpan.Zero;
-        IsActualOvertime = worked >= OvertimeThreshold;
+        IsOvertime = balance > TimeSpan.Zero;
     }
 
     [RelayCommand] private void Edit() { if (!IsOutOfMonth) _onEdit(this); }

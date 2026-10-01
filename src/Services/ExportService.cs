@@ -69,17 +69,17 @@ public class ExportService
             }
             else if (entry != null)
             {
-                ws.Cell(row, 3).Value = DurationFormatter.FormatTime(entry.StartTime);
-                ws.Cell(row, 4).Value = DurationFormatter.FormatTime(entry.EndTime);
-                ws.Cell(row, 5).Value = DurationFormatter.Format(entry.BreakDuration);
-                ws.Cell(row, 6).Value = DurationFormatter.Format(entry.WorkDuration);
+                ws.Cell(row, 3).Value = DurationFormatter.FormatExport(entry.StartTime);
+                ws.Cell(row, 4).Value = DurationFormatter.FormatExport(entry.EndTime);
+                ws.Cell(row, 5).Value = DurationFormatter.FormatExport(entry.BreakDuration);
+                ws.Cell(row, 6).Value = DurationFormatter.FormatExport(entry.WorkDuration);
                 var diff = entry.WorkDuration - settings.DailyTarget;
                 var cell = ws.Cell(row, 7);
-                cell.Value = diff == TimeSpan.Zero ? "0:00"
-                    : diff > TimeSpan.Zero ? "+" + DurationFormatter.Format(diff)
-                    : "-" + DurationFormatter.Format(diff.Duration());
+                cell.Value = diff == TimeSpan.Zero ? "00:00:00"
+                    : diff > TimeSpan.Zero ? "+" + DurationFormatter.FormatExport(diff)
+                    : "-" + DurationFormatter.FormatExport(diff.Duration());
                 cell.Style.Font.FontColor = diff < TimeSpan.Zero ? XLColor.Red
-                    : entry.WorkDuration >= settings.OvertimeThreshold ? XLColor.DarkGreen
+                    : diff > TimeSpan.Zero ? XLColor.DarkGreen
                     : XLColor.FromHtml("#E65100");
             }
 
@@ -110,13 +110,13 @@ public class ExportService
         ws.Cell(summaryRow, 1).Value = "Total";
         ws.Cell(summaryRow, 1).Style.Font.Bold = true;
         ws.Cell(summaryRow, 5).Value = $"{workdays} workdays";
-        ws.Cell(summaryRow, 6).Value = DurationFormatter.Format(totalWork);
+        ws.Cell(summaryRow, 6).Value = DurationFormatter.FormatExport(totalWork);
         ws.Cell(summaryRow, 6).Style.Font.Bold = true;
         var totalBalance = totalWork - totalExpected;
         var totalCell = ws.Cell(summaryRow, 7);
-        totalCell.Value = totalBalance == TimeSpan.Zero ? "0:00"
-            : totalBalance > TimeSpan.Zero ? "+" + DurationFormatter.Format(totalBalance)
-            : "-" + DurationFormatter.Format(totalBalance.Duration());
+        totalCell.Value = totalBalance == TimeSpan.Zero ? "00:00:00"
+            : totalBalance > TimeSpan.Zero ? "+" + DurationFormatter.FormatExport(totalBalance)
+            : "-" + DurationFormatter.FormatExport(totalBalance.Duration());
         totalCell.Style.Font.Bold = true;
         totalCell.Style.Font.FontColor = totalBalance < TimeSpan.Zero ? XLColor.Red : XLColor.DarkGreen;
 
@@ -172,11 +172,11 @@ public class ExportService
                     workdays++;
                     var start = entry?.StartTime ?? new TimeSpan(8, 0, 0);
                     var end = start + settings.DailyTarget + breakDuration;
-                    ws.Cell(row, 3).Value = DurationFormatter.FormatTime(start);
-                    ws.Cell(row, 4).Value = DurationFormatter.FormatTime(end);
-                    ws.Cell(row, 5).Value = DurationFormatter.Format(breakDuration);
-                    ws.Cell(row, 6).Value = DurationFormatter.Format(settings.DailyTarget);
-                    ws.Cell(row, 7).Value = "0:00";
+                    ws.Cell(row, 3).Value = DurationFormatter.FormatExport(start);
+                    ws.Cell(row, 4).Value = DurationFormatter.FormatExport(end);
+                    ws.Cell(row, 5).Value = DurationFormatter.FormatExport(breakDuration);
+                    ws.Cell(row, 6).Value = DurationFormatter.FormatExport(settings.DailyTarget);
+                    ws.Cell(row, 7).Value = "00:00:00";
                     ws.Cell(row, 7).Style.Font.FontColor = XLColor.FromHtml("#E65100");
                 }
             }
@@ -197,9 +197,9 @@ public class ExportService
         ws.Cell(summaryRow, 1).Value = "Total";
         ws.Cell(summaryRow, 1).Style.Font.Bold = true;
         ws.Cell(summaryRow, 5).Value = $"{workdays} workdays";
-        ws.Cell(summaryRow, 6).Value = DurationFormatter.Format(totalWork);
+        ws.Cell(summaryRow, 6).Value = DurationFormatter.FormatExport(totalWork);
         ws.Cell(summaryRow, 6).Style.Font.Bold = true;
-        ws.Cell(summaryRow, 7).Value = "0:00";
+        ws.Cell(summaryRow, 7).Value = "00:00:00";
         ws.Cell(summaryRow, 7).Style.Font.Bold = true;
         ws.Cell(summaryRow, 7).Style.Font.FontColor = XLColor.DarkGreen;
 

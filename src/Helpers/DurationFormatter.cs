@@ -19,6 +19,13 @@ public static class DurationFormatter
     public static string FormatTime(TimeSpan time)
         => $"{(int)time.TotalHours:D2}:{time.Minutes:D2}";
 
+    // "00:00:00" — matches the hand-in document so values can be copied straight over
+    public static string FormatExport(TimeSpan duration)
+    {
+        var d = duration.Duration();
+        return $"{(int)d.TotalHours:D2}:{d.Minutes:D2}:{d.Seconds:D2}";
+    }
+
     public static string FormatElapsed(TimeSpan elapsed)
     {
         var d = elapsed.Duration();

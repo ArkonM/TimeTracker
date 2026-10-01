@@ -18,8 +18,6 @@ public class JsonDataStore
         Converters = { new TimeSpanConverter(), new DateOnlyConverter() }
     };
 
-    private static readonly string VacationConfigPath = Path.Combine(Dir, "vacation.json");
-
     private static string EntriesPath(int month) =>
         Path.Combine(Dir, $"{month:D2}_Entries.json");
 
@@ -30,9 +28,7 @@ public class JsonDataStore
         try
         {
             var json = File.ReadAllText(MetaPath);
-            var data = JsonSerializer.Deserialize<AppData>(json, Options) ?? new AppData();
-            data.Entries.Clear();
-            return data;
+            return JsonSerializer.Deserialize<AppData>(json, Options) ?? new AppData();
         }
         catch
         {
@@ -43,8 +39,7 @@ public class JsonDataStore
     public void SaveMeta(AppData data)
     {
         Directory.CreateDirectory(Dir);
-        var meta = new AppData { Settings = data.Settings, ActiveSession = data.ActiveSession };
-        File.WriteAllText(MetaPath, JsonSerializer.Serialize(meta, Options));
+        File.WriteAllText(MetaPath, JsonSerializer.Serialize(data, Options));
     }
 
     public List<TimeEntry> LoadEntries(int month)
@@ -67,23 +62,6 @@ public class JsonDataStore
     {
         Directory.CreateDirectory(Dir);
         File.WriteAllText(EntriesPath(month), JsonSerializer.Serialize(entries, Options));
-    }
-
-    public VacationConfig LoadVacationConfig()
-    {
-        if (!File.Exists(VacationConfigPath))
-        {
-            var template = new VacationConfig();
-            Directory.CreateDirectory(Dir);
-            File.WriteAllText(VacationConfigPath, JsonSerializer.Serialize(template, Options));
-            return template;
-        }
-        try
-        {
-            var json = File.ReadAllText(VacationConfigPath);
-            return JsonSerializer.Deserialize<VacationConfig>(json, Options) ?? new VacationConfig();
-        }
-        catch { return new VacationConfig(); }
     }
 
     public IEnumerable<int> GetMonthsWithEntries()

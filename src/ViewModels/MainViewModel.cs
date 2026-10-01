@@ -31,7 +31,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private string _elapsedDisplay = "00:00:00";
     [ObservableProperty] private string _balanceTodayDisplay = "";    // -7:42 → 0:00 → +overtime
     [ObservableProperty] private bool _isTodayDeficit;
-    [ObservableProperty] private bool _isTodayActualOvertime;
+    [ObservableProperty] private bool _isTodayOvertime;
     [ObservableProperty] private bool _isTracking;
     [ObservableProperty] private bool _canNavigateNext;
     [ObservableProperty] private string _vacationBalanceDisplay = "";
@@ -48,10 +48,10 @@ public partial class MainViewModel : ObservableObject
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += OnTick;
 
-        var vc = new JsonDataStore().LoadVacationConfig();
-        if (vc.VacationDaysPerYear > 0)
+        var vacation = new VacationService(Settings);
+        if (vacation.IsConfigured)
         {
-            _vacationService = new VacationService(vc);
+            _vacationService = vacation;
             HasVacationConfig = true;
         }
 
@@ -215,7 +215,7 @@ public partial class MainViewModel : ObservableObject
         _sessionStart = null;
         ElapsedDisplay = "00:00:00";
         BalanceTodayDisplay = "";
-        IsTodayDeficit = IsTodayActualOvertime = false;
+        IsTodayDeficit = IsTodayOvertime = false;
 
         if (_year == DateTime.Today.Year && _month == DateTime.Today.Month)
             LoadMonth();
@@ -319,7 +319,7 @@ public partial class MainViewModel : ObservableObject
             _sessionStart = null;
             ElapsedDisplay = "00:00:00";
             BalanceTodayDisplay = "";
-            IsTodayDeficit = IsTodayActualOvertime = false;
+            IsTodayDeficit = IsTodayOvertime = false;
             LoadMonth();
             return;
         }
@@ -354,7 +354,7 @@ public partial class MainViewModel : ObservableObject
             : "-" + DurationFormatter.Format(balance.Duration());
 
         IsTodayDeficit = balance < TimeSpan.Zero;
-        IsTodayActualOvertime = elapsed >= Settings.OvertimeThreshold;
+        IsTodayOvertime = balance > TimeSpan.Zero;
     }
 
     private void UpdateTotalOvertimeLive(TimeSpan liveWorkToday)

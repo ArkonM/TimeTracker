@@ -33,16 +33,16 @@
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
 
-        <!-- Three-zone balance color: red = deficit, amber = met target not yet overtime, green = actual overtime -->
+        <!-- Three-zone balance color: red = deficit, amber = exactly on target, green = positive balance -->
         <Style x:Key="BalanceText" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="#E65100"/>  <!-- amber: daily target met, not yet 8h -->
+            <Setter Property="Foreground" Value="#E65100"/>  <!-- amber: exactly on target -->
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsDeficit}" Value="True">
                     <Setter Property="Foreground" Value="#C62828"/>
                 </DataTrigger>
-                <DataTrigger Binding="{Binding IsActualOvertime}" Value="True">
+                <DataTrigger Binding="{Binding IsOvertime}" Value="True">
                     <Setter Property="Foreground" Value="#2E7D32"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -136,7 +136,7 @@
                                     <TextBlock Grid.Column="5" Text="{Binding WorkDisplay}"
                                                FontWeight="SemiBold" VerticalAlignment="Center"/>
 
-                                    <!-- Overtime/balance column: red=deficit, amber=met not overtime, green=overtime -->
+                                    <!-- Overtime/balance column: red=deficit, amber=on target, green=positive -->
                                     <TextBlock Grid.Column="6" Text="{Binding BalanceDisplay}"
                                                Style="{StaticResource BalanceText}"/>
 
@@ -206,7 +206,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Text="  /  Vacation: " FontSize="12" Foreground="#444"
+                <TextBlock Text="  /  Remaining vacation: " FontSize="12" Foreground="#444"
                            Visibility="{Binding HasVacationConfig, Converter={StaticResource BoolToVis}}"/>
                 <TextBlock Text="{Binding VacationBalanceDisplay}" FontSize="12" FontWeight="SemiBold"
                            Foreground="#1565C0"
@@ -249,7 +249,7 @@
                                     <DataTrigger Binding="{Binding IsTodayDeficit}" Value="True">
                                         <Setter Property="Foreground" Value="#C62828"/>
                                     </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsTodayActualOvertime}" Value="True">
+                                    <DataTrigger Binding="{Binding IsTodayOvertime}" Value="True">
                                         <Setter Property="Foreground" Value="#2E7D32"/>
                                     </DataTrigger>
                                 </Style.Triggers>

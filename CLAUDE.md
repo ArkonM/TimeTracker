@@ -57,10 +57,11 @@ A test data file for May 2026 is provided at `test-data-may-2026.json` in the re
 
 ## Settings
 
-`AppSettings` is stored inside `data.json` alongside entries. Key derived values:
+`AppSettings` is stored inside `data.json` (next to `ActiveSession`). Key derived values:
 
 - `DailyTarget = WeeklyHours / 5` (default 38.5 h/week → **7h 42min/day**)
-- `OvertimeThreshold` = separate threshold for "actual overtime" colour (default **8h**)
+- Overtime colour: red = below `DailyTarget`, amber = exactly on target, green = any positive balance
+- `EmploymentStartDate` + `VacationDaysPerYear` (default 25) drive `VacationService`: `VacationDaysPerYear / 12` per month during the first year, then the full amount on each anniversary. `null` start date disables vacation tracking.
 
 ## Holidays
 

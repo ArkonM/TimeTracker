@@ -3,7 +3,8 @@
     "allow": [
       "PowerShell(Get-Content *)",
       "Read(//c/Users/ArminSchneider/source/repos/TimeTracker/**)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "PowerShell(dotnet build *)"
     ]
   }
 }
