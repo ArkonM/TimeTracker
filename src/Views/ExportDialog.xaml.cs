@@ -7,10 +7,10 @@ public partial class ExportDialog : Window
 {
     public ExportDialogViewModel ViewModel { get; }
 
-    public ExportDialog(int currentYear, int currentMonth)
+    public ExportDialog(IEnumerable<(int Year, int Month)> monthsWithEntries, int currentYear, int currentMonth)
     {
         InitializeComponent();
-        ViewModel = new ExportDialogViewModel(currentYear, currentMonth);
+        ViewModel = new ExportDialogViewModel(monthsWithEntries, currentYear, currentMonth);
         DataContext = ViewModel;
     }
 

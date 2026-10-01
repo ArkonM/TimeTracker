@@ -248,7 +248,7 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Export()
     {
-        var dlg = new Views.ExportDialog(_year, _month);
+        var dlg = new Views.ExportDialog(_service.GetMonthsWithEntries(), _year, _month);
         if (dlg.ShowDialog() != true) return;
 
         var save = new Microsoft.Win32.SaveFileDialog

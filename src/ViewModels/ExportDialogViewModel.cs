@@ -44,18 +44,20 @@ public class ExportDialogViewModel : INotifyPropertyChanged
     private void OnPropertyChanged([CallerMemberName] string? name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-    public ExportDialogViewModel(int currentYear, int currentMonth)
+    // Lists every month that has entries (newest first), plus the currently viewed month, which is preselected
+    public ExportDialogViewModel(IEnumerable<(int Year, int Month)> monthsWithEntries, int currentYear, int currentMonth)
     {
-        var dt = new DateTime(currentYear, currentMonth, 1);
-        for (int i = 0; i < 13; i++)
+        var months = monthsWithEntries.Append((currentYear, currentMonth))
+            .Distinct()
+            .OrderByDescending(m => m.Item1).ThenByDescending(m => m.Item2);
+        foreach (var (y, m) in months)
         {
-            var m = dt.AddMonths(-i);
             Months.Add(new MonthOption
             {
-                Year = m.Year,
-                Month = m.Month,
-                Label = m.ToString("MMMM yyyy"),
-                IsSelected = i == 0
+                Year = y,
+                Month = m,
+                Label = new DateTime(y, m, 1).ToString("MMMM yyyy"),
+                IsSelected = y == currentYear && m == currentMonth
             });
         }
     }

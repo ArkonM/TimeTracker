@@ -52,6 +52,9 @@ public class TimeEntryService
         _store.SaveEntries(date.Month, list);
     }
 
+    public IEnumerable<(int Year, int Month)> GetMonthsWithEntries()
+        => GetAllEntries().Select(e => (e.Date.Year, e.Date.Month)).Distinct();
+
     public IReadOnlyList<TimeEntry> GetAllEntries()
         => _store.GetMonthsWithEntries()
             .SelectMany(m => GetOrLoadMonth(m))
