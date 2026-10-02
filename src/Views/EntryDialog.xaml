@@ -26,13 +26,15 @@
         <TextBlock Grid.Row="0" Grid.ColumnSpan="2"
                    Text="{Binding DateDisplay}" FontSize="14" FontWeight="SemiBold"/>
 
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal">
-            <CheckBox Content="Vacation Day" IsChecked="{Binding IsVacation}"
-                      VerticalAlignment="Center" Margin="0,0,4,0"/>
-            <TextBlock Text="{Binding VacationBalanceDisplay}"
-                       Foreground="#666" FontSize="11" VerticalAlignment="Center" Margin="0,0,14,0"/>
-            <CheckBox Content="Sick Day" IsChecked="{Binding IsSick}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-            <CheckBox Content="Home Office" IsChecked="{Binding IsHomeOffice}" VerticalAlignment="Center"/>
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal">
+                <CheckBox Content="Vacation Day" IsChecked="{Binding IsVacation}"
+                          VerticalAlignment="Center" Margin="0,0,14,0"/>
+                <CheckBox Content="Sick Day" IsChecked="{Binding IsSick}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                <CheckBox Content="Home Office" IsChecked="{Binding IsHomeOffice}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Text="{Binding VacationBalanceDisplay}" Foreground="#666" FontSize="11" Margin="0,6,0,0"
+                       Visibility="{Binding IsVacation, Converter={StaticResource BoolToVis}}"/>
         </StackPanel>
 
         <Grid Grid.Row="4" Grid.ColumnSpan="2"

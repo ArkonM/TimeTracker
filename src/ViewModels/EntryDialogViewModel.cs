@@ -13,6 +13,7 @@ public class EntryDialogViewModel : INotifyPropertyChanged
     private bool _isVacation;
     private bool _isSick;
     private bool _isHomeOffice;
+    private bool _wasVacation;
 
     public DateOnly Date { get; set; }
     public string DateDisplay => Date.ToString("dddd, dd MMMM yyyy");
@@ -54,7 +55,10 @@ public class EntryDialogViewModel : INotifyPropertyChanged
     }
 
     public double? VacationBalance { get; set; }
-    public string VacationBalanceDisplay => VacationBalance.HasValue ? $"({VacationBalance.Value:F1} d remaining)" : "";
+    // Balance after saving: this day costs one more, unless it was already a vacation day (then it is already counted)
+    public string VacationBalanceDisplay => VacationBalance.HasValue
+        ? $"Remaining vacation: {VacationBalance.Value - (_wasVacation ? 0 : 1):F1} d"
+        : "";
 
     public EntryType EntryType => _isVacation ? EntryType.Vacation : _isSick ? EntryType.Sick : EntryType.Work;
 
@@ -101,7 +105,11 @@ public class EntryDialogViewModel : INotifyPropertyChanged
         Date = entry.Date;
         IsHomeOffice = entry.IsHomeOffice;
         if (entry.EntryType == EntryType.Vacation)
+        {
+            _wasVacation = true;
             IsVacation = true;
+            OnPropertyChanged(nameof(VacationBalanceDisplay));
+        }
         else if (entry.EntryType == EntryType.Sick)
             IsSick = true;
         else
